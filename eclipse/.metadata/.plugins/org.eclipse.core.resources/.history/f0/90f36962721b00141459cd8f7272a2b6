@@ -1,0 +1,112 @@
+package com.hathoward.letsmodreboot.client.renderer.tileentity;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+
+import assets.letsmodreboot.models.ModelLocomotiveCoupleRod;
+import assets.letsmodreboot.models.ModelLocomotiveFrame;
+import assets.letsmodreboot.models.ModelLocomotiveLeftPiston;
+import assets.letsmodreboot.models.ModelLocomotivePushRod;
+import assets.letsmodreboot.models.ModelLocomotiveRightPiston;
+import assets.letsmodreboot.models.ModelLocomotiveWheel;
+
+import com.hathoward.letsmodreboot.reference.Textures;
+import com.hathoward.letsmodreboot.tileentity.TileEntityLocomotive;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.entity.Entity;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+
+@SideOnly(Side.CLIENT)
+public class TileEntityRendererLocomotive extends TileEntitySpecialRenderer  
+{
+	
+	private float wa;
+	private float speed;
+	
+	public TileEntityRendererLocomotive()
+	{
+		wa = 0F;
+		speed = 2.0F;
+	}
+
+	//block model
+    private final ModelLocomotiveFrame modelLocomotiveFrame = new ModelLocomotiveFrame();
+    private final ModelLocomotiveWheel modelLocomotiveWheel = new ModelLocomotiveWheel();
+    private final ModelLocomotiveRightPiston modelLocomotiveRightPiston = new ModelLocomotiveRightPiston();
+    private final ModelLocomotiveLeftPiston modelLocomotiveLeftPiston = new ModelLocomotiveLeftPiston();
+    private final ModelLocomotiveCoupleRod modelLocomotiveCoupleRod = new ModelLocomotiveCoupleRod();
+    private final ModelLocomotivePushRod modelLocomotivePushRod = new ModelLocomotivePushRod();
+    
+	@Override
+	public void renderTileEntityAt(TileEntity tileEntity, double x, double y, double z, float tick) 
+	{
+		GL11.glPushMatrix();
+		
+        GL11.glScalef(1.0F, 1.0F, 1.0F);
+        GL11.glTranslatef((float) x + 0.5F, (float) y + 0.0F, (float) z + 0.5F);
+        
+        wa += tick*-1*speed; //<- increase the angel and reset it once it has reached more than 360 degrees so the variable won't flow over
+        if (wa <= 360) {
+            wa -= 360;
+        }
+        
+		this.bindTexture(Textures.Model.LOCOMOTIVE);
+		
+        GL11.glPushMatrix();
+        GL11.glRotatef(180F, 0.0F, 0.0F, 1.0F);
+		
+        this.modelLocomotiveFrame.render((Entity)null, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
+        
+        GL11.glPushMatrix();
+        GL11.glTranslatef((float) 0.0, -0.3125F, 0.375F);
+        GL11.glRotatef(-wa, 1.0f, 0.0f, 0.0f);
+        this.modelLocomotiveWheel.render((Entity)null, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
+        
+        GL11.glPushMatrix();
+        GL11.glTranslatef(-0.44F, -0.12F, 0.0F);
+        GL11.glRotatef(wa, 1.0f, 0.0f, 0.0f);
+        this.modelLocomotiveCoupleRod.render((Entity)null, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
+        GL11.glPopMatrix();
+        
+        GL11.glPushMatrix();
+        GL11.glTranslatef(-0.44F, -0.12F, 0.0F);
+        GL11.glRotatef(wa, 1.0f, 0.0f, 0.0f);
+        //float k_a = 73.196198F - 23.695999F * (float)Math.cos(Math.toRadians(wa - 93.789101F));
+        //float f_x = (float)(10.0D + Math.cos(Math.toRadians(wa)) * 2.0D - Math.cos(Math.toRadians(k_a)) * 5.0D);
+        //float f_y = (float)(Math.sin(Math.toRadians(wa)) * 2.0D - 3.5D + Math.sin(Math.toRadians(k_a)) * 5.0D);
+        float k_a = 4.0F * (float)Math.cos(Math.toRadians(wa));
+        float f_x = (float)(40.0D + Math.cos(Math.toRadians(wa - 270.0F)) * 4.0D - Math.cos(Math.toRadians(k_a)) * 5.0D);
+        float f_y = (float)(Math.sin(Math.toRadians(wa - 270.0F)) * 5.0D - 2.25D + Math.sin(Math.toRadians(k_a)) * 5.0D);        
+        GL11.glRotatef((float)Math.toDegrees(Math.atan2(f_y, f_x)), 1.0F, 0.0F, 0.0F);
+        this.modelLocomotivePushRod.render((Entity)null, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
+        GL11.glPopMatrix();
+        
+        GL11.glPopMatrix();
+        
+        GL11.glPushMatrix();
+        GL11.glTranslatef((float) 0.0, -0.3125F, -0.375F);
+        GL11.glRotatef(-wa, 1.0f, 0.0f, 0.0f);
+        this.modelLocomotiveWheel.render((Entity)null, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
+        GL11.glPopMatrix();
+        
+        GL11.glPushMatrix();
+        GL11.glTranslatef(0.0F, 0.0F, (float)(Math.cos(Math.toRadians(wa + 270.0F)) * 2.0D / 16.0D));
+        this.modelLocomotiveRightPiston.render((Entity)null, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
+        GL11.glPopMatrix();
+        
+        GL11.glPushMatrix();
+        GL11.glTranslatef(0.0F, 0.0F, (float)(Math.cos(Math.toRadians(wa + 180.0F)) * 2.0D / 16.0D));
+        this.modelLocomotiveLeftPiston.render((Entity)null, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
+        GL11.glPopMatrix();
+        
+        GL11.glPopMatrix();
+        GL11.glPopMatrix();
+	}
+    
+}
+
